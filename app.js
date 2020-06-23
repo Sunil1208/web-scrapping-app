@@ -34,6 +34,14 @@ async function getData () {
     let batting_style = $('#ciHomeContentlhs > div.pnl490M > div:nth-child(2) > div:nth-child(1) > p:nth-child(6) > span').text()
     let bowling_style = $('#ciHomeContentlhs > div.pnl490M > div:nth-child(2) > div:nth-child(1) > p:nth-child(7) > span').text()
 
+    let batData = []
+    let battingData = $('#ciHomeContentlhs > div.pnl490M > table:nth-child(4) > tbody > tr > td').each((index,data) => {batData.push($(data).text())})
+    //newData.map((index,innerData)=>{ batData.push(innerData.innerText)})
+
+    let bowlData = []
+    let bowlingData = $('#ciHomeContentlhs > div.pnl490M > table:nth-child(6) >tbody> tr>td').each((index,data)=> {bowlData.push($(data).text())})
+    //let bowlingData = $('#ciHomeContentlhs > div.pnl490M > table:nth-child(6) >tbody> tr>td').each((index,data)=> {console.log(`Index : ${index} ,Data : ${$(data).text()}`)})
+
     playerData.push({
         full_name,
         born,
@@ -41,7 +49,9 @@ async function getData () {
         teams,
         role,
         batting_style,
-        bowling_style
+        bowling_style,
+        batData,
+        bowlData
     })
     
     obj.data.push(playerData)
@@ -57,7 +67,7 @@ app.get('/',(req,res) => {
     
     callData.then(finalData =>{
         console.log(finalData)
-        res.json(finalData)
+        return res.json(finalData)
     })
 })
 
