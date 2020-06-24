@@ -2,22 +2,41 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const request = require('request-promise')
 const cheerio = require('cheerio')
+var cors = require('cors')
 const app = express()
 
 const player = "https://www.espncricinfo.com/india/content/player/28235.html"
-
+    let shikharUrl = "https://www.espncricinfo.com/india/content/player/28235.html"
+    let viratUrl = "https://www.espncricinfo.com/india/content/player/253802.html"
+    let rahulUrl = "https://www.espncricinfo.com/india/content/player/422108.html"
+    let bumrahUrl = "https://www.espncricinfo.com/india/content/player/625383.html"
+    
 
 
 var port = process.env.PORT ||5050
 
-async function getData () {
+app.use(cors())
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+async function getData (name) {
     let playerData = []
     let obj = {
         data:[]
     }
+    let playerUrl = ''
+    if(name==='virat'){
+        playerUrl="https://www.espncricinfo.com/india/content/player/253802.html"
+    } else if(name === 'rahul'){
+        playerUrl="https://www.espncricinfo.com/india/content/player/422108.html"
+    } else if(name === 'bumrah'){
+        playerUrl="https://www.espncricinfo.com/india/content/player/625383.html"
+    } else if(name === 'dhawan'){
+        playerUrl="https://www.espncricinfo.com/india/content/player/28235.html"
+    }
 
     const response = await request({
-        uri:player,
+        uri:playerUrl,
         headers:{
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
             "Accept-Encoding": "gzip, deflate",
@@ -41,7 +60,7 @@ async function getData () {
     let bowlData = []
     let bowlingData = $('#ciHomeContentlhs > div.pnl490M > table:nth-child(6) >tbody> tr>td').each((index,data)=> {bowlData.push($(data).text())})
     //let bowlingData = $('#ciHomeContentlhs > div.pnl490M > table:nth-child(6) >tbody> tr>td').each((index,data)=> {console.log(`Index : ${index} ,Data : ${$(data).text()}`)})
-
+    let last_update = new Date().toLocaleString()
     playerData.push({
         full_name,
         born,
@@ -51,24 +70,50 @@ async function getData () {
         batting_style,
         bowling_style,
         batData,
-        bowlData
+        bowlData,
+        last_update
+    })
+
+    obj.data.push({
+        full_name,
+        born,
+        age,
+        teams,
+        role,
+        batting_style,
+        bowling_style,
+        batData,
+        bowlData,
+        last_update
     })
     
-    obj.data.push(playerData)
+    //obj.data.push(playerData)
 
-    let jsonData = JSON.stringify(obj)
-    console.log(jsonData)
+    //let jsonData = JSON.stringify(obj)
+    let jsonData = obj
+    // jsonData=JSON.parse(jsonData)
+    console.log(typeof(jsonData))
+    console.log(jsonData.data)
     return jsonData
 }
 
-let callData = getData()
 
-app.get('/',(req,res) => {
-    
+
+app.get('/players/:paramName',(req,res) => {
+    console.log(req.params)
+    let name=req.params.paramName
+    console.log(`Param name is ${name}`)
+    //let {playerUrl} = req.body
+    let callData = getData(name)
     callData.then(finalData =>{
         console.log(finalData)
-        return res.json(finalData)
+         res.json(finalData)
     })
+})
+
+app.post('/abc',(req,res) => {
+    console.log(req.body)
+    return res.json(req.body)
 })
 
 app.listen(port,()=> {
