@@ -97,7 +97,9 @@ async function getData (name) {
     return jsonData
 }
 
-
+app.get('/',(req,res)=> {
+    res.send('Hello')
+})
 
 app.get('/players/:paramName',(req,res) => {
     console.log(req.params)
